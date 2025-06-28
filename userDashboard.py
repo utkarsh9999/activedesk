@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import values
 from verifyCreds import get_courses
+import vlc
 
 def on_item_selected(event):
     selected_item = tree.selection()
@@ -78,7 +79,6 @@ def launch_dashboard():
     global content_label, root
     print("values user dashboard", values.course_ids)
 
-    # ✅ Extract course IDs from [{'ids': [101, 102]}]
     raw_ids = values.course_ids
     course_ids = []
     for item in raw_ids:
