@@ -51,8 +51,11 @@ def user_login_handler(username, password, window):
     if check_credentials(username,password):
         messagebox.showinfo("Login Success", f"Welcome User: {username}!")
         window.destroy()
+        for i in range(file_menu.index("end") + 1):
+            file_menu.entryconfig(i, state="disabled")
+        root.iconify()
         launch_dashboard()
-        root.withdraw();
+
 
     else:
         messagebox.showerror("Login Failed", "Invalid User credentials.")

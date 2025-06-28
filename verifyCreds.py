@@ -26,6 +26,8 @@ def check_credentials(username, password):
         accounts = json.loads(response.decode("utf-8"))  # Expecting a list, not a dict
         for account in accounts:
             if account.get("email") == username and account.get("password") == password:
+                course_ids=account.get("courses")
+                print(course_ids)
                 return True
         return False
     except Exception as e:

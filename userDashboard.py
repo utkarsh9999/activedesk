@@ -72,7 +72,6 @@ def launch_dashboard():
     content_label = ttk.Label(content, text="Select an item from the list", font=("Segoe UI", 14))
     content_label.grid(row=0, column=0, sticky="n", pady=20)
 
-    # Populate the treeview inside a container
     setup_treeview(sidebar)
 
     root.mainloop()
