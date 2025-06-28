@@ -1,15 +1,17 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-
+import values
+from verifyCreds import get_courses
 def on_item_selected(event):
     selected_item = tree.selection()
     if selected_item:
         item_text = tree.item(selected_item[0], "text")
         content_label.config(text=f"You selected: {item_text}")
 
-def setup_treeview(parent):
+def setup_treeview(parent,courses):
     global tree
     tree = ttk.Treeview(parent)
+    print("treeview : ",courses)
     tree.grid(row=0, column=0, sticky="nsew")  # Use grid instead of pack
     tree.column("#0", width=150, stretch=False)
 
@@ -45,13 +47,22 @@ def setup_menu(root):
 
 def launch_dashboard():
     global content_label, root
+    print("values user dashboard", values.course_ids)
+
+    # ✅ Extract course IDs from [{'ids': [101, 102]}]
+    raw_ids = values.course_ids
+    course_ids = []
+    for item in raw_ids:
+        course_ids.extend(item.get("ids", []))
+
+    courses = get_courses(course_ids)
 
     root = tk.Tk()
     root.title("User Dashboard")
     root.geometry("900x600")
 
-    root.columnconfigure(0, weight=0)  # Fixed width sidebar
-    root.columnconfigure(1, weight=1)  # Expand only main content
+    root.columnconfigure(0, weight=0)
+    root.columnconfigure(1, weight=1)
     root.rowconfigure(0, weight=1)
 
     # Menu bar
@@ -59,9 +70,9 @@ def launch_dashboard():
 
     # Sidebar
     sidebar = ttk.Frame(root, width=160)
-    sidebar.grid(row=0, column=0, sticky="ns")  # Only stick north-south
+    sidebar.grid(row=0, column=0, sticky="ns")
     sidebar.grid_propagate(False)
-    sidebar.rowconfigure(0, weight=1)  # Make Treeview stretch in height
+    sidebar.rowconfigure(0, weight=1)
 
     # Main content
     content = ttk.Frame(root)
@@ -72,6 +83,8 @@ def launch_dashboard():
     content_label = ttk.Label(content, text="Select an item from the list", font=("Segoe UI", 14))
     content_label.grid(row=0, column=0, sticky="n", pady=20)
 
-    setup_treeview(sidebar)
+    # ✅ Pass filtered courses
+    setup_treeview(sidebar, courses)
 
     root.mainloop()
+
