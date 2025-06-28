@@ -8,22 +8,43 @@ def on_item_selected(event):
         item_text = tree.item(selected_item[0], "text")
         content_label.config(text=f"You selected: {item_text}")
 
-def setup_treeview(parent,courses):
+def setup_treeview(parent, courses):
     global tree
-    tree = ttk.Treeview(parent)
-    print("treeview : ",courses)
-    tree.grid(row=0, column=0, sticky="nsew")  # Use grid instead of pack
-    tree.column("#0", width=150, stretch=False)
+    container = ttk.Frame(parent)
+    container.grid(row=0, column=0, sticky="nsew")
 
-    module1 = tree.insert("", "end", text="📁 Module 1", open=True)
-    tree.insert(module1, "end", text="📄 Video 1")
-    tree.insert(module1, "end", text="📄 Video 2")
+    # Treeview
+    tree = ttk.Treeview(container, columns=("url",), show="tree")
+    tree.grid(row=0, column=0, sticky="nsew")
 
-    module2 = tree.insert("", "end", text="📁 Module 2", open=False)
-    tree.insert(module2, "end", text="📄 Topic A")
-    tree.insert(module2, "end", text="📄 Topic B")
+    # Scrollbars
+    vsb = ttk.Scrollbar(container, orient="vertical", command=tree.yview)
+    vsb.grid(row=0, column=1, sticky="ns")
+
+    hsb = ttk.Scrollbar(container, orient="horizontal", command=tree.xview)
+    hsb.grid(row=1, column=0, sticky="ew")
+
+    tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+    # Force wide column to enable scrolling
+    tree.column("#0", minwidth=600, width=600, stretch=False)
+
+    container.columnconfigure(0, weight=1)
+    container.rowconfigure(0, weight=1)
+
+    # Add nodes
+    for course in courses:
+        course_name = course.get("course_name", "Untitled Course")
+        contents = course.get("course_content_urls", [])
+        course_node = tree.insert("", "end", text=f"📁 {course_name}", open=True)
+        for content in contents:
+            title = content.get("title", "Untitled")
+            url = content.get("url", "")
+            # Just show title here (not url), but store it in values
+            tree.insert(course_node, "end", text=f"📄 {title}", values=(url,))
 
     tree.bind("<<TreeviewSelect>>", on_item_selected)
+
 
 
 
