@@ -62,3 +62,6 @@ def get_courses(raw_course_ids):
         if isinstance(course, dict) and course.get("course_id") in course_ids
     ]
     return filtered_courses
+
+def change_password(old_pwd,new_pwd,confirm_pwd):
+    print(old_pwd+" : "+new_pwd+" : "+confirm_pwd);

@@ -56,7 +56,6 @@ def user_login_handler(username, password, window):
         root.iconify()
         launch_dashboard()
 
-
     else:
         messagebox.showerror("Login Failed", "Invalid User credentials.")
 
