@@ -63,5 +63,57 @@ def get_courses(raw_course_ids):
     ]
     return filtered_courses
 
-def change_password(old_pwd,new_pwd,confirm_pwd):
-    print(old_pwd+" : "+new_pwd+" : "+confirm_pwd);
+
+def verify_change_password(old_pwd, new_pwd):
+    if values.logged_in_user_password != old_pwd:
+        print("Current password doesn't match")
+        return False
+
+    try:
+        # 1. Download current accounts data
+        response = supabase.storage.from_(BUCKET_NAME).download(JSON_FILE_PATH)
+        if not response:
+            print("Failed to fetch accounts data")
+            return False
+
+        accounts = json.loads(response.decode('utf-8'))
+
+        # 2. Find and update the matching account
+        updated = False
+        for account in accounts:
+            if account.get("email") == values.logged_in_user_email:
+                account["password"] = new_pwd
+                updated = True
+                break
+
+        if not updated:
+            print("Account not found")
+            return False
+
+        # 3. Upload the updated JSON back to Supabase
+        updated_json = json.dumps(accounts).encode('utf-8')
+
+        # First try to remove existing file (if needed)
+        try:
+            supabase.storage.from_(BUCKET_NAME).remove([JSON_FILE_PATH])
+        except Exception as remove_error:
+            print(f"Warning: Could not remove old file (may not exist): {remove_error}")
+
+        # Then upload new version
+        upload_response = supabase.storage.from_(BUCKET_NAME).upload(
+            JSON_FILE_PATH,
+            updated_json
+        )
+
+        if upload_response:
+            # Update local values if successful
+            values.logged_in_user_password = new_pwd
+            print("Password updated successfully")
+            return True
+        else:
+            print("Failed to upload updated data")
+            return False
+
+    except Exception as e:
+        print(f"Error updating password: {e}")
+        return False

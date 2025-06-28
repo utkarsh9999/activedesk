@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import vlc
 import values
-from verifyCreds import get_courses
+from verifyCreds import get_courses,verify_change_password
 
 # Global VLC player instance
 player = None
@@ -196,8 +196,9 @@ def change_password():
             return
 
         # Here you would add your actual password change logic
-        messagebox.showinfo("Success", "Password changed successfully!")
-        password_window.destroy()
+        if(verify_change_password(current,new)==True):
+            messagebox.showinfo("Success", "Password changed successfully!")
+            password_window.destroy()
 
     ttk.Button(
         password_window,
