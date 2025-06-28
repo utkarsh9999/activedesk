@@ -2,11 +2,22 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import values
 from verifyCreds import get_courses
+
 def on_item_selected(event):
     selected_item = tree.selection()
     if selected_item:
-        item_text = tree.item(selected_item[0], "text")
-        content_label.config(text=f"You selected: {item_text}")
+        item_id = selected_item[0]
+        parent_id = tree.parent(item_id)  # Get parent to check if this is a child node
+
+        if parent_id:  # Only proceed if it's a child (i.e., has a parent)
+            item_text = tree.item(item_id, "text")
+            content_label.config(text=f"You selected: {item_text}")
+            root.title(f"User Dashboard - {item_text}")
+        else:
+            # It's a folder/course name (not a child), do not change title
+            item_text = tree.item(item_id, "text")
+            content_label.config(text=f"Course: {item_text}")
+
 
 def setup_treeview(parent, courses):
     global tree
@@ -22,7 +33,7 @@ def setup_treeview(parent, courses):
     vsb.grid(row=0, column=1, sticky="ns")
 
     hsb = ttk.Scrollbar(container, orient="horizontal", command=tree.xview)
-    hsb.grid(row=1, column=0, sticky="ew")
+    hsb.grid(row=1, column=0, sticky="ew")  # <-- Uncommented this line
 
     tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
 
@@ -40,12 +51,9 @@ def setup_treeview(parent, courses):
         for content in contents:
             title = content.get("title", "Untitled")
             url = content.get("url", "")
-            # Just show title here (not url), but store it in values
             tree.insert(course_node, "end", text=f"📄 {title}", values=(url,))
 
     tree.bind("<<TreeviewSelect>>", on_item_selected)
-
-
 
 
 def change_password():
