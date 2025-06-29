@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from verifyCreds import check_credentials
 from userDashboard import launch_dashboard
+from back import starter_thread
+from progress import start_progress
+
 def login_form(role, login_handler):
     login_window = tk.Toplevel(root)
     login_window.title(f"{role} Login")
@@ -47,17 +50,22 @@ def login_form(role, login_handler):
 
     ttk.Button(frame, text="Login", command=submit_login).grid(row=5, column=0, pady=10)
 
-def user_login_handler(username, password, window):
-    if check_credentials(username,password):
-        messagebox.showinfo("Login Success", f"Welcome User: {username}!")
-        window.destroy()
-        for i in range(file_menu.index("end") + 1):
-            file_menu.entryconfig(i, state="disabled")
-        root.iconify()
-        launch_dashboard()
 
+def user_login_handler(username, password, window):
+    if check_credentials(username, password):
+        def after_progress():
+            messagebox.showinfo("Login Success", f"Welcome User: {username}!")
+            window.destroy()
+            for i in range(file_menu.index("end") + 1):
+                file_menu.entryconfig(i, state="disabled")
+            root.iconify()
+            launch_dashboard()
+
+        start_progress(after_progress)
     else:
         messagebox.showerror("Login Failed", "Invalid User credentials.")
+
+
 
 def admin_login_handler(username, password, window):
     if username == "admin" and password == "admin123":
@@ -67,7 +75,6 @@ def admin_login_handler(username, password, window):
     else:
         messagebox.showerror("Access Denied", "Incorrect Admin credentials.")
 
-# Launchers
 def user_login():
     login_form("User", user_login_handler)
 
@@ -81,7 +88,6 @@ def exit_app():
 root = tk.Tk()
 root.title("ActiveTek Training")
 
-# Center the main window
 window_width = 400
 window_height = 300
 screen_width = root.winfo_screenwidth()
@@ -98,5 +104,5 @@ file_menu.add_command(label="Admin Login", command=admin_login)
 file_menu.add_command(label="Exit", command=exit_app)
 menu_bar.add_cascade(label="Login", menu=file_menu)
 root.config(menu=menu_bar)
-
+starter_thread();
 root.mainloop()
